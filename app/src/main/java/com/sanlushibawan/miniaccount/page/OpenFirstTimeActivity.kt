@@ -1,6 +1,7 @@
 package com.sanlushibawan.miniaccount.page
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -48,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.edit
 import androidx.lifecycle.ViewModelProvider
+import com.sanlushibawan.miniaccount.MainActivity
 import com.sanlushibawan.miniaccount.R
 import com.sanlushibawan.miniaccount.entity.AccountEntity
 import com.sanlushibawan.miniaccount.page.viewModels.OpenFirstTimeViewModel
@@ -58,24 +60,24 @@ class OpenFirstTimeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
             //.getBoolean("isFirstTime",true)
+        val openFirstTimeViewModel = ViewModelProvider.AndroidViewModelFactory(application).create(OpenFirstTimeViewModel::class.java)
+        openFirstTimeViewModel.insertResLong.observe(this){
+            if (it!=0L) {
+                getSharedPreferences("MiniAccount", Context.MODE_PRIVATE).edit{
+                    putBoolean("isFirstTime",false)
+                    putString("userName",openFirstTimeViewModel.inputUserName.value) }
+                startActivity(Intent(this,MainActivity::class.java))
+                this.finish()
+            }
+        }
         setContent {
+            var nameInput by remember {
+                openFirstTimeViewModel.inputUserName
+            }
             MiniAccountTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.primaryContainer){
-                    val openFirstTimeViewModel = ViewModelProvider.AndroidViewModelFactory(application).create(OpenFirstTimeViewModel::class.java)
-                    var nameInput by remember {
-                        openFirstTimeViewModel.inputUserName
-                    }
-                    openFirstTimeViewModel.insertResLong.observe(this){
 
-                        if (it!=0L) {
-                            getSharedPreferences("MiniAccount", Context.MODE_PRIVATE).edit{
-                                putBoolean("isFirstTime",false)
-                                putString("userName",nameInput)
-                            }
-                            this.finish()
-                        }
-                    }
                     Column(modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 56.dp), horizontalAlignment = Alignment.CenterHorizontally){

@@ -77,6 +77,7 @@ import com.sanlushibawan.miniaccount.page.OpenFirstTimeActivity
 import com.sanlushibawan.miniaccount.page.viewModels.MainViewModel
 import com.sanlushibawan.miniaccount.ui.theme.MiniAccountTheme
 import java.util.Calendar
+import kotlin.math.log
 
 class MainActivity : ComponentActivity() {
     private lateinit var viewModel: MainViewModel
@@ -84,7 +85,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val openFirstTime=getSharedPreferences("MiniAccount", Context.MODE_PRIVATE).getBoolean("isFirstTime",true)
-        if (openFirstTime) startActivity(Intent(this,OpenFirstTimeActivity::class.java))
+        if (openFirstTime) {
+            startActivity(Intent(this, OpenFirstTimeActivity::class.java))
+            this.finish()
+        }
         setContent {
             MiniAccountTheme {
                 // A surface container using the 'background' color from the theme
@@ -479,12 +483,14 @@ class MainActivity : ComponentActivity() {
                                                         Toast.makeText(this@MainActivity, "请先添加账户", Toast.LENGTH_SHORT).show()
                                                     }else if (billAmount == null){
                                                         Toast.makeText(this@MainActivity, "输入的金额不合理", Toast.LENGTH_SHORT).show()
-                                                    }else{
+                                                    }else if(billAmount <0.01){
+                                                        Toast.makeText(this@MainActivity, "没有输入金额", Toast.LENGTH_SHORT).show()
+                                                    } else{
                                                         val newBill = BillEntity(mCalendar.get(Calendar.YEAR),mCalendar.get(Calendar.MONDAY)+1,
                                                             mCalendar.get(Calendar.DATE),weekday,selectedType,accountSelect.id,accountSelect.accountName,billAmount,inputText)
                                                         viewModel.addNewBill(newBill,accountSelect)
                                                     }
-                                                }) { Text(text = "记录在案") }
+                                                }) { Text(text = "添加记录") }
                                                 }
                                             }
                                         }
